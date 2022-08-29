@@ -22,14 +22,19 @@ let defaults = {
 };
 
 const renderFilters = () => {
-  defaults.filters.forEach(({ id, title }) => {
+  defaults.filters.forEach(({ id, title }, index) => {
     filterEl.innerHTML += `
-    <li class="post-links" id="post-links">
+    <li class="post-links" id="link-${index}">
       <a href="#" categoryId="${id}" title="${title}">${title}</a>
     </li>`;
   });
   filterEl.querySelectorAll("a").forEach((a) => {
     a.addEventListener("click", () => {
+      const links = document.querySelectorAll(".post-links");
+      links.forEach((link) => {
+        link.classList.remove("active");
+      });
+      a.parentElement.classList.add("active");
       defaults.page = 1;
       const countryID = a.getAttribute("categoryId");
       newsPosts.innerHTML = "";
@@ -78,6 +83,7 @@ const singlePost = async function (singlePostID) {
   try {
     showLoaderIcon();
     const res = await fetch(`${defaults.baseUrl}/${singlePostID}?_embed=1`);
+    hideLoaderIcon();
     if (!res.ok) {
       throw new Error(`Failed to fetch posts`);
     }
@@ -116,6 +122,7 @@ const fetchNewsData = async function ({
   }
 };
 if (singlePostID) {
+  showLoaderIcon();
   singlePost(singlePostID);
 }
 
@@ -123,6 +130,7 @@ if (!singlePostID) {
   renderFilters();
   fetchNewsData({});
   loadMoreBtn.addEventListener("click", async function () {
+    showLoaderIcon();
     ++defaults.page;
     fetchNewsData({
       page: defaults.page,

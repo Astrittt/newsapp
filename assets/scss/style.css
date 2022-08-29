@@ -467,11 +467,11 @@ textarea {
 .main-section__inner .main-nav__list .post-links:last-child {
   margin-right: 0rem;
 }
-.main-section__inner .main-nav__list .post-links .active-link {
-  color: #3a63de;
-}
-.main-section__inner .main-nav__list a {
+.main-section__inner .main-nav__list .post-links a {
   color: #000;
+}
+.main-section__inner .main-nav__list .active a {
+  color: #3a63de;
 }
 .main-section__inner .articles {
   display: grid;
@@ -539,6 +539,9 @@ textarea {
   -webkit-animation-duration: 1.05s;
   animation-duration: 1.05s;
 }
+.main-section .loadmore {
+  position: relative;
+}
 .main-section .loader {
   position: absolute;
   top: 50%;
@@ -546,7 +549,8 @@ textarea {
   margin: -90px 0 0 -90px;
   visibility: hidden;
 }
-.main-section .active {
+.main-section .active,
+.main-section .loader.active {
   visibility: visible;
 }
 .main-section body {
@@ -603,6 +607,9 @@ textarea {
   box-shadow: -4px 10px 40px rgba(44, 63, 88, 0.05);
   padding: 2.4rem 2.4rem;
 }
+.single-section__inner .articles-single .article .post-content figure {
+  width: 100% !important;
+}
 .single-section__inner .articles-single .article h1 {
   font-size: 1.6rem;
   margin-bottom: 2rem;
@@ -625,6 +632,52 @@ textarea {
   line-height: 2.3rem;
   color: #595f69;
   margin-top: 2.4rem;
+}
+.single-section .circle {
+  position: absolute;
+  border: 3px solid transparent;
+  border-top-color: #333333;
+  border-radius: 50%;
+  -webkit-animation: rotate linear infinite;
+  animation: rotate linear infinite;
+}
+.single-section .circle.one {
+  height: 50px;
+  width: 50px;
+  left: 50px;
+  top: 50px;
+  -webkit-animation-duration: 0.85s;
+  animation-duration: 0.85s;
+}
+.single-section .circle.two {
+  height: 75px;
+  width: 75px;
+  top: 38px;
+  left: 38px;
+  -webkit-animation-duration: 0.95s;
+  animation-duration: 0.95s;
+}
+.single-section .circle.three {
+  height: 100px;
+  width: 100px;
+  top: 25px;
+  left: 25px;
+  -webkit-animation-duration: 1.05s;
+  animation-duration: 1.05s;
+}
+.single-section .loadmore {
+  position: relative;
+}
+.single-section .loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -90px 0 0 -90px;
+  visibility: hidden;
+}
+.single-section .active,
+.single-section .loader.active {
+  visibility: visible;
 }
 
 @media only screen and (max-width: 767px) {
