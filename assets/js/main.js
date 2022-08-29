@@ -5,8 +5,9 @@ const loadMoreBtn = document.querySelector("button");
 const loaderBtn = document.getElementById("loader");
 const singlePostPage = document.getElementById("articles-single");
 const filterEl = document.getElementById("filter");
-const isSinglePage =
-  !!window.location.search && !window.location.search.includes("categories");
+const postLinks = document.getElementById("post-links");
+const singlePostID = window.location.search.split("?postId=").join("");
+const backBtn = document.getElementById("btn-single");
 
 let defaults = {
   baseUrl: "https://balkaninsight.com/wp-json/wp/v2/posts",
@@ -20,36 +21,19 @@ let defaults = {
   ],
 };
 
-function getParameterByName(name, url = window.location.href) {
-  name = name.replace(/[\[\]]/g, "\\$&");
-  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-    results = regex.exec(url);
-  if (!results) return null;
-  if (!results[2]) return "";
-  return decodeURIComponent(results[2].replace(/\+/g, " "));
-}
-
-const updateQueryParams = (per_page, page, countryID) => {
-  const newUrl =
-    window.location.protocol +
-    "//" +
-    window.location.host +
-    window.location.pathname +
-    `?per_page=${per_page}&page=${page}&_embed=1&categories=${countryID}`;
-  window.history.pushState({ path: newUrl }, "", newUrl);
-};
-
 const renderFilters = () => {
   defaults.filters.forEach(({ id, title }) => {
     filterEl.innerHTML += `
-    <li>
+    <li class="post-links" id="post-links">
       <a href="#" categoryId="${id}" title="${title}">${title}</a>
     </li>`;
   });
   filterEl.querySelectorAll("a").forEach((a) => {
     a.addEventListener("click", () => {
+      defaults.page = 1;
       const countryID = a.getAttribute("categoryId");
       newsPosts.innerHTML = "";
+      defaults.countryID = countryID;
       fetchNewsData({ countryID });
     });
   });
@@ -57,7 +41,7 @@ const renderFilters = () => {
 
 const showLoaderIcon = function () {
   loaderBtn.classList.add("active");
-  if (!isSinglePage) {
+  if (!singlePostID) {
     loadMoreBtn.style.visibility = "hidden";
   }
 };
@@ -71,14 +55,19 @@ const renderPost = ({ date, title, id, _embedded, excerpt, content }, type) => {
   const dateMod = date.split("T");
   const isSingle = type === "single";
   const contentData = isSingle ? content : excerpt;
+  const singleStyle = newsPosts ? "articles" : "articles-single";
   const html = `
-  <article class="article" id="articles">
+  <article class="article" id="${singleStyle}">
   <h1>${title.rendered}</h1>
   <a href="/single.html?postId=${id}">
-  <img src= ${_embedded["wp:featuredmedia"][0].link}/>
+  <div class="img-content"> 
+  <img src= ${
+    _embedded["wp:featuredmedia"]?.[0]?.link || ""
+  }  alt= "This is an image"/>
+  </div>
   </a>
-  <span>${dateMod[0]}</span>
-  <p>${contentData.rendered}</p>
+  <p class="date">${dateMod?.[0] || ""}</p>
+  <div class="post-content">${contentData.rendered}</div>
   </article>
   `;
   const insertToEl = isSingle ? singlePostPage : newsPosts;
@@ -87,6 +76,7 @@ const renderPost = ({ date, title, id, _embedded, excerpt, content }, type) => {
 
 const singlePost = async function (singlePostID) {
   try {
+    showLoaderIcon();
     const res = await fetch(`${defaults.baseUrl}/${singlePostID}?_embed=1`);
     if (!res.ok) {
       throw new Error(`Failed to fetch posts`);
@@ -96,6 +86,9 @@ const singlePost = async function (singlePostID) {
   } catch (e) {
     console.log(e);
   }
+  backBtn.addEventListener("click", function () {
+    history.back();
+  });
 };
 
 const fetchNewsData = async function ({
@@ -104,7 +97,6 @@ const fetchNewsData = async function ({
   page = defaults.page,
 }) {
   try {
-    updateQueryParams(per_page, page, countryID);
     showLoaderIcon();
     const res = await fetch(
       `${defaults.baseUrl}?per_page=${per_page}&page=${page}&_embed=1&categories=${countryID}`
@@ -123,24 +115,17 @@ const fetchNewsData = async function ({
     console.log(e);
   }
 };
-if (isSinglePage) {
-  const singlePostID = window.location.search.split("?postId=").join("");
+if (singlePostID) {
   singlePost(singlePostID);
 }
 
-if (!isSinglePage) {
+if (!singlePostID) {
   renderFilters();
-  fetchNewsData({
-    per_page: getParameterByName("per_page"),
-    page: getParameterByName("page"),
-    countryID: getParameterByName("categories"),
-  });
+  fetchNewsData({});
   loadMoreBtn.addEventListener("click", async function () {
-    const page = ++defaults.page;
+    ++defaults.page;
     fetchNewsData({
-      per_page: getParameterByName("per_page"),
-      page,
-      countryID: getParameterByName("categories"),
+      page: defaults.page,
     });
   });
 }
